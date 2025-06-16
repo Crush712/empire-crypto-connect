@@ -4,21 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, Coins, Star, TrendingUp, CheckCircle } from "lucide-react";
+import { Shield, Users, Coins, Star, TrendingUp, CheckCircle, Wallet } from "lucide-react";
 import SellerRegistrationForm from "@/components/SellerRegistrationForm";
 import BuyerWaitlistForm from "@/components/BuyerWaitlistForm";
 import LiveSellerCount from "@/components/LiveSellerCount";
 import EscrowInfo from "@/components/EscrowInfo";
 import ReferralLeaderboard from "@/components/ReferralLeaderboard";
+import WalletConnector from "@/components/WalletConnector";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [activeForm, setActiveForm] = useState<'seller' | 'buyer' | null>(null);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string>("");
   const { toast } = useToast();
 
   const scrollToForms = () => {
     const formsSection = document.getElementById('join-forms');
     formsSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleWalletConnect = (address: string) => {
+    setWalletConnected(true);
+    setWalletAddress(address);
+    toast({
+      title: "Wallet Connected!",
+      description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
+    });
+  };
+
+  const handleJoinWaitlist = () => {
+    if (!walletConnected) {
+      toast({
+        title: "Connect your wallet first",
+        description: "Please connect your Farcaster wallet to join the waitlist",
+        variant: "destructive",
+      });
+      return;
+    }
+    setActiveForm('buyer');
+    scrollToForms();
   };
 
   return (
@@ -32,9 +57,16 @@ const Index = () => {
             </div>
             <span className="text-xl font-bold text-gray-900">KnowEmpire</span>
           </div>
-          <Button onClick={scrollToForms} className="bg-purple-600 hover:bg-purple-700">
-            Join Now
-          </Button>
+          <div className="flex items-center space-x-4">
+            <WalletConnector 
+              onConnect={handleWalletConnect}
+              isConnected={walletConnected}
+              address={walletAddress}
+            />
+            <Button onClick={scrollToForms} className="bg-purple-600 hover:bg-purple-700">
+              Join Now
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -61,7 +93,7 @@ const Index = () => {
                 Start Selling
               </Button>
               <Button 
-                onClick={scrollToForms} 
+                onClick={handleJoinWaitlist} 
                 variant="outline" 
                 size="lg" 
                 className="border-purple-200 text-purple-700 hover:bg-purple-50 text-lg px-8 py-4"
@@ -82,15 +114,35 @@ const Index = () => {
             <p className="text-lg text-gray-600">Everything you need to know about our platform</p>
           </div>
           
-          <Tabs defaultValue="overview" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="users">Who Can Use</TabsTrigger>
-              <TabsTrigger value="escrow">Escrow Safety</TabsTrigger>
-              <TabsTrigger value="rewards">Rewards</TabsTrigger>
+          <Tabs defaultValue="overview" className="max-w-6xl mx-auto">
+            <TabsList className="grid w-full grid-cols-4 h-12 bg-gray-100 rounded-lg p-1">
+              <TabsTrigger 
+                value="overview" 
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+              >
+                Who Can Use
+              </TabsTrigger>
+              <TabsTrigger 
+                value="escrow"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+              >
+                Escrow Safety
+              </TabsTrigger>
+              <TabsTrigger 
+                value="rewards"
+                className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+              >
+                Rewards
+              </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="mt-8">
+            <TabsContent value="overview" className="mt-8 space-y-6">
               <div className="grid md:grid-cols-3 gap-8">
                 <Card className="border-purple-100 hover:shadow-lg transition-shadow">
                   <CardHeader>
@@ -122,7 +174,7 @@ const Index = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="users" className="mt-8">
+            <TabsContent value="users" className="mt-8 space-y-6">
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -148,11 +200,11 @@ const Index = () => {
               </div>
             </TabsContent>
             
-            <TabsContent value="escrow" className="mt-8">
+            <TabsContent value="escrow" className="mt-8 space-y-6">
               <EscrowInfo />
             </TabsContent>
             
-            <TabsContent value="rewards" className="mt-8">
+            <TabsContent value="rewards" className="mt-8 space-y-6">
               <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-lg p-8 text-white text-center">
                 <h3 className="text-2xl font-bold mb-4">Earn $KNOW Tokens</h3>
                 <p className="text-lg mb-8 opacity-90">Get rewarded for participating in the KnowEmpire ecosystem</p>
@@ -199,7 +251,12 @@ const Index = () => {
 
           <div className="max-w-2xl mx-auto">
             {activeForm === 'seller' && <SellerRegistrationForm />}
-            {activeForm === 'buyer' && <BuyerWaitlistForm />}
+            {activeForm === 'buyer' && (
+              <BuyerWaitlistForm 
+                walletAddress={walletAddress}
+                isWalletConnected={walletConnected}
+              />
+            )}
             {!activeForm && (
               <div className="text-center py-8">
                 <p className="text-gray-500">Select an option above to get started</p>

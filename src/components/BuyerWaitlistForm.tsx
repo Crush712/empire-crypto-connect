@@ -1,14 +1,19 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, CheckCircle } from "lucide-react";
+import { Mail, CheckCircle, Wallet } from "lucide-react";
 
-const BuyerWaitlistForm = () => {
+interface BuyerWaitlistFormProps {
+  walletAddress?: string;
+  isWalletConnected?: boolean;
+}
+
+const BuyerWaitlistForm = ({ walletAddress, isWalletConnected }: BuyerWaitlistFormProps) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,6 +29,16 @@ const BuyerWaitlistForm = () => {
     { id: "services", label: "Services" },
     { id: "digital", label: "Digital Products" },
   ];
+
+  // Auto-fill wallet address when connected
+  useEffect(() => {
+    if (isWalletConnected && walletAddress) {
+      setFormData(prev => ({
+        ...prev,
+        email: walletAddress
+      }));
+    }
+  }, [walletAddress, isWalletConnected]);
 
   const handleInterestChange = (interestId: string, checked: boolean) => {
     if (checked) {
@@ -76,6 +91,12 @@ const BuyerWaitlistForm = () => {
             <p className="text-green-600 text-sm mt-1">
               You'll be among the first to access our marketplace and get exclusive early buyer benefits!
             </p>
+            {isWalletConnected && walletAddress && (
+              <div className="mt-3 flex items-center justify-center space-x-2 text-green-600">
+                <Wallet className="w-4 h-4" />
+                <span className="text-sm">Wallet: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -90,10 +111,24 @@ const BuyerWaitlistForm = () => {
           <span>Join Buyer Waitlist</span>
         </CardTitle>
         <CardDescription>
-          Be the first to know when KnowEmpire opens for buyers
+          {isWalletConnected 
+            ? "Your wallet is connected! Complete the form below." 
+            : "Be the first to know when KnowEmpire opens for buyers"
+          }
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {isWalletConnected && walletAddress && (
+          <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span className="text-sm text-green-800 font-medium">
+                Wallet Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+              </span>
+            </div>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name */}
           <div className="space-y-2">
@@ -109,13 +144,17 @@ const BuyerWaitlistForm = () => {
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email or Wallet Address *</Label>
+            <Label htmlFor="email">
+              {isWalletConnected ? "Wallet Address *" : "Email or Wallet Address *"}
+            </Label>
             <Input
               id="email"
-              placeholder="your@email.com or 0x..."
+              placeholder={isWalletConnected ? "Auto-filled from wallet" : "your@email.com or 0x..."}
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               required
+              disabled={isWalletConnected}
+              className={isWalletConnected ? "bg-gray-50" : ""}
             />
           </div>
 
