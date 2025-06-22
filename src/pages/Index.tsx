@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Users, Coins, Star, TrendingUp, CheckCircle, Wallet, Menu, X, Trophy } from "lucide-react";
+import { Shield, Users, Coins, Star, TrendingUp, CheckCircle, Wallet, Menu, X } from "lucide-react";
 import SellerRegistrationForm from "@/components/SellerRegistrationForm";
 import BuyerWaitlistForm from "@/components/BuyerWaitlistForm";
 import LiveSellerCount from "@/components/LiveSellerCount";
 import EscrowInfo from "@/components/EscrowInfo";
+import ReferralLeaderboard from "@/components/ReferralLeaderboard";
 import WalletConnector from "@/components/WalletConnector";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,40 +45,6 @@ const Index = () => {
     }
     setActiveForm('buyer');
     scrollToForms();
-  };
-
-  const topReferrers = [
-    { rank: 1, name: "CryptoMaven", referrals: 47, wallet: "0x1234...5678", type: "seller" },
-    { rank: 2, name: "DigitalNomad", referrals: 38, wallet: "0x2345...6789", type: "seller" },
-    { rank: 3, name: "BlockchainBoss", referrals: 32, wallet: "0x3456...7890", type: "seller" },
-    { rank: 4, name: "DeFiDegen", referrals: 29, wallet: "0x4567...8901", type: "seller" },
-    { rank: 5, name: "NFTCollector", referrals: 24, wallet: "0x5678...9012", type: "seller" },
-  ];
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="w-5 h-5 text-yellow-500" />;
-      case 2:
-        return <Badge className="w-5 h-5 text-gray-400" />;
-      case 3:
-        return <Star className="w-5 h-5 text-amber-600" />;
-      default:
-        return <Star className="w-5 h-5 text-purple-500" />;
-    }
-  };
-
-  const getRankColor = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return "bg-gradient-to-r from-yellow-400 to-yellow-500";
-      case 2:
-        return "bg-gradient-to-r from-gray-300 to-gray-400";
-      case 3:
-        return "bg-gradient-to-r from-amber-400 to-amber-500";
-      default:
-        return "bg-gradient-to-r from-purple-400 to-purple-500";
-    }
   };
 
   return (
@@ -263,7 +230,7 @@ const Index = () => {
                     <CheckCircle className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600" />
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">Digital Products</h3>
-                  <p className="text-gray-600 text-sm sm:text-base">Sell courses, ebooks, software, and other digital assets.</p>
+                  <p className="text-gray-600 text-sm sm:text-base">Sell courses, ebooks, software, NFTs, and other digital assets.</p>
                 </div>
               </div>
             </TabsContent>
@@ -338,54 +305,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Referral Leaderboard - Only Top Referrers */}
-      <section className="py-16 px-4 bg-gradient-to-br from-purple-50 to-white">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Community Leaderboard</h2>
-            <p className="text-lg text-gray-600">Top performers in the KnowEmpire community</p>
-          </div>
-
-          <div className="max-w-2xl mx-auto">
-            {/* Top Referrers */}
-            <Card className="border-purple-200">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="w-5 h-5 text-purple-600" />
-                  <span>Top Referrers</span>
-                </CardTitle>
-                <CardDescription>
-                  Members who brought the most people to KnowEmpire
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {topReferrers.map((referrer) => (
-                    <div
-                      key={referrer.rank}
-                      className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100 hover:shadow-md transition-shadow"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getRankColor(referrer.rank)}`}>
-                          <span className="text-white font-bold text-sm">#{referrer.rank}</span>
-                        </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">{referrer.name}</div>
-                          <div className="text-sm text-gray-500">{referrer.wallet}</div>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold text-purple-600">{referrer.referrals}</div>
-                        <div className="text-sm text-gray-500">referrals</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
+      {/* Referral Leaderboard */}
+      <ReferralLeaderboard />
 
       {/* Mobile-Optimized Footer */}
       <footer className="bg-gray-900 text-white py-8 sm:py-12 px-4">
